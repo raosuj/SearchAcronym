@@ -11,12 +11,10 @@ import com.test.searchacro.repository.AcronymRepo
 import com.test.searchacro.repository.AcronymRepository
 import kotlinx.coroutines.*
 
-class SearchActivityViewModel(val repository: AcronymRepo): ViewModel() {
+class SearchActivityViewModel(val repository: AcronymRepo, val scope: CoroutineScope = CoroutineScope(Dispatchers.Main)): ViewModel() {
 
     val searchText = ObservableField<String>()
     val searchData = MutableLiveData<List<SearchViewModel>>()
-
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
 
     private var searchJob: Job? = null
 
@@ -31,7 +29,7 @@ class SearchActivityViewModel(val repository: AcronymRepo): ViewModel() {
 
     fun getData(data: String) {
         searchJob?.cancel()
-        searchJob = coroutineScope.launch {
+        searchJob = scope.launch {
             data?.let {
                 delay(500)
                 if (it.isEmpty()) {
@@ -52,7 +50,7 @@ class SearchActivityViewModel(val repository: AcronymRepo): ViewModel() {
         searchData.value = listOf(SearchViewModel(data = "A network error occurred: $message"))
     }
 
-    private fun onSearchSuccess(value: Acronyms?) {
+    fun onSearchSuccess(value: Acronyms?) {
         searchData.value = value.toViewModel()
     }
 
